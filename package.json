@@ -1,0 +1,30 @@
+{
+  "name": "retri",
+  "version": "1.0.0",
+  "description": "A lightweight, configurable retry utility for async JavaScript with backoff, jitter, hooks, and abort support",
+  "main": "src/index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GLXALOKESH/retri.git"
+  },
+  "keywords": [
+    "retry",
+    "async",
+    "promise",
+    "util"
+  ],
+  "author": "alokesh maitra",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GLXALOKESH/retri/issues"
+  },
+  "homepage": "https://github.com/GLXALOKESH/retri#readme"
+}
