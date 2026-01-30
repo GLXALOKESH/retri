@@ -1,12 +1,15 @@
 import { RetriError } from "./error";
-
+import { delay } from "./delay";
+import { backoff } from "./backoff";
 
 async function retry(fn, options) {
     const retries = options.retries ? options.retries : 3;
     const errors = [];
-
+    const dealyms = options.delay ? options.delay : 300;
     const maxAttempts = retries + 1;
-
+    const backoffSelection = options.backoff ? options.backoff : "fixed"
+    let currentDelay = dealyms;
+    const factor = options.factor ? options.factor : 2;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         console.log("attempt: ", attempt);
@@ -19,6 +22,20 @@ async function retry(fn, options) {
             if (attempt === maxAttempts) {
                 throw new RetriError("Maximum Retries Exceeded", attempt, errors);
             }
+        }
+        console.log(currentDelay);
+
+        await delay(currentDelay);
+        if (backoffSelection === "fixed") {
+            currentDelay = await backoff(backoffSelection, dealyms)
+        }
+        else if (backoffSelection === "linear") {
+            currentDelay = await backoff(backoffSelection, dealyms, attempt + 1)
+        }
+        else if (backoffSelection === "exponential") {
+            // console.log(factor);
+
+            currentDelay = await backoff(backoffSelection, currentDelay, attempt, factor)
         }
     }
 
