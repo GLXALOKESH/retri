@@ -1,19 +1,23 @@
 import { RetriError } from "./error";
 import { delay } from "./delay";
 import { backoff } from "./backoff";
+import { jitter } from "./jitter";
 
 async function retry(fn, options) {
     const retries = options.retries ? options.retries : 3;
     const errors = [];
     const dealyms = options.delay ? options.delay : 300;
-    const maxAttempts = retries + 1;
     const backoffSelection = options.backoff ? options.backoff : "fixed"
     let currentDelay = dealyms;
     const factor = options.factor ? options.factor : 2;
-
+    const jitterVal = options.jitter ? options.jitter : 0;
+    const maxAttempts = retries + 1;
+    let currentDelaywithJitter = currentDelay;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         console.log("attempt: ", attempt);
-
+        if (jitterVal) {
+            currentDelaywithJitter = await jitter(currentDelay, jitterVal);
+        }
         try {
             const result = await fn();
             return result;
@@ -25,7 +29,7 @@ async function retry(fn, options) {
         }
         console.log(currentDelay);
 
-        await delay(currentDelay);
+        await delay(currentDelaywithJitter);
         if (backoffSelection === "fixed") {
             currentDelay = await backoff(backoffSelection, dealyms)
         }
