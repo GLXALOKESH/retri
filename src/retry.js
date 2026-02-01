@@ -2,6 +2,7 @@ import { RetriError } from "./error";
 import { delay } from "./delay";
 import { backoff } from "./backoff";
 import { jitter } from "./jitter";
+import { createContext } from "./retryContext";
 
 async function retry(fn, options) {
     const retries = options.retries ? options.retries : 3;
@@ -13,6 +14,9 @@ async function retry(fn, options) {
     const jitterVal = options.jitter ? options.jitter : 0;
     const maxAttempts = retries + 1;
     let currentDelaywithJitter = currentDelay;
+    const startTime = Date.now();
+
+
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         console.log("attempt: ", attempt);
         if (jitterVal) {
@@ -25,6 +29,13 @@ async function retry(fn, options) {
             errors.push(error);
             if (attempt === maxAttempts) {
                 throw new RetriError("Maximum Retries Exceeded", attempt, errors);
+            }
+            const ctx = createContext({ attempt, retries, startTime, error })
+            const allowretry = options.shouldRetry ? options.shouldRetry(error, ctx) : true;
+
+            if (!allowretry) {
+
+                throw new RetriError("Error not allowed to retry", attempt, errors);
             }
         }
         console.log(currentDelay);
