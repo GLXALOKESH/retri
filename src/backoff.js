@@ -14,7 +14,7 @@ async function backoff(type, delay, attempt, factor) {
         return delay * attempt;
     }
     else if (type === "exponential") {
-        return delay * factor;
+        return delay * factor ^ (attempt - 1);
     }
 
 
