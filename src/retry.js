@@ -66,7 +66,6 @@ async function retry(fn, options = {}) {
             currentDelay = await backoff(backoffSelection, delayms, attempt + 1)
         }
         else if (backoffSelection === "exponential") {
-            // console.log(factor);
 
             currentDelay = await backoff(backoffSelection, delayms, attempt, factor)
         }
